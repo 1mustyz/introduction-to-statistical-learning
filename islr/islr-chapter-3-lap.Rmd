@@ -1,0 +1,257 @@
+---
+title: "islr-chapter-3-lap"
+author: "Mustapha Yusuf"
+date: "2025-05-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(magrittr)
+library(MASS)
+library(ISLR2)
+library(ggplot2)
+```
+
+```{r}
+Boston$lstat[1:2]
+
+```
+
+```{r}
+n <- Boston$lstat %>% NROW
+var <- Boston$lstat %>% var
+se <- var/n
+se
+```
+
+```{r}
+lm.fit <- Boston %>% lm(medv ~ lstat, data=.)
+lm.fit
+```
+
+```{r}
+Boston %>% ggplot(aes(x = lstat, y = medv)) +
+  geom_point(alpha = 0.7, color = "steelblue") +
+  geom_smooth(method = "lm", formula = y ~ x, color = "red", se = TRUE)+
+  labs(title = "Housing Value vs Lower Status Population",
+       subtitle = paste("Model: medv =", 
+                       round(coef(lm.fit)[1], 2), "+", 
+                       round(coef(lm.fit)[2], 2), "× lstat"),
+       x = "% Lower Status of Population (LSTAT)",
+       y = "Median Home Value in $1000s (MEDV)")
+```
+```{r}
+lm.fit %>% names
+```
+
+```{r}
+# confidence interval for the coeﬀicient estimates
+lm.fit %>% confint
+```
+
+```{r}
+lm.fit %>% predict(data.frame(lstat = (c(5, 10, 15))),
+interval = "confidence")
+```
+
+```{r}
+lm.fit %>% predict(data.frame(lstat = (c(5, 10, 15))),
+interval = "prediction")
+```
+
+```{r}
+Boston %>% attach
+plot(lstat , medv)
+abline(lm.fit)
+```
+
+```{r}
+plot(lstat , medv , col = "red")
+plot(lstat , medv , pch = 20)
+plot(lstat , medv , pch = "+")
+
+# abline(lm.fit , lwd = 3)
+abline(lm.fit , lwd = 3, col = "red")
+plot (1:20 , 1:20, pch = 1:20)
+
+```
+
+```{r}
+par(mfrow = c(2, 2))
+plot(lm.fit)
+```
+
+```{r}
+plot(predict(lm.fit), residuals(lm.fit))
+plot(predict(lm.fit), rstudent(lm.fit))
+```
+
+```{r}
+plot(hatvalues(lm.fit))
+which.max(hatvalues(lm.fit))
+```
+
+```{r}
+hist(lstat)
+summary(lstat)
+
+
+```
+
+
+```{r}
+lm.fit <- lm(medv ~ lstat + age , data = Boston)
+summary(lm.fit)
+```
+
+```{r}
+lm.fit <- lm(medv ~ ., data = Boston)
+summary(lm.fit)
+```
+```{r}
+lm.fit1 <- lm(medv ~ . - age , data = Boston)
+summary(lm.fit1)
+```
+```{r}
+summary(lm(medv ~ lstat * age , data = Boston))
+```
+
+```{r}
+lm.fit2 <- lm(medv ~ lstat + I(lstat ^2))
+summary(lm.fit2)
+```
+```{r}
+lm.fit <- lm(medv ~ lstat)
+anova(lm.fit , lm.fit2)
+```
+
+```{r}
+par(mfrow = c(2, 2))
+plot(lm.fit2)
+```
+
+```{r}
+head(Carseats)
+```
+```{r}
+lm.fit <- lm(Sales ~ . + Income:Advertising + Price:Age ,
+data = Carseats)
+summary(lm.fit)
+```
+
+```{r}
+attach(Carseats)
+contrasts(ShelveLoc)
+```
+
+
+```{r}
+head(Auto)
+```
+```{r}
+lm.fit.auto <- lm(mpg ~ horsepower, data=Auto)
+lm.fit.auto %>% summary
+```
+```{r}
+lm.fit.auto %>% predict(data.frame(horsepower = (c(98))),
+interval = "confidence")
+
+lm.fit.auto %>% predict(data.frame(horsepower = (c(98))),
+interval = "prediction")
+```
+
+```{r}
+attach(Auto)
+plot(horsepower , mpg)
+
+abline(lm.fit.auto)
+```
+
+```{r}
+# Diagnostic plots
+par(mfrow = c(2, 2))  # 2x2 plotting layout
+plot(lm.fit.auto)
+```
+
+```{r}
+# Scatterplot matrix excluding 'name' (qualitative variable)
+pairs(Auto[ , -9], main = "Scatterplot Matrix of Auto Dataset")
+```
+```{r}
+# Compute correlation matrix, excluding the 'name' variable
+cor(Auto[ , -9])
+```
+```{r}
+# Fit the model with all predictors except 'name'
+lm_fit <- lm(mpg ~ . - name, data = Auto)
+
+# Print summary
+summary(lm_fit)
+```
+```{r}
+par(mfrow = c(2, 2))
+plot(lm_fit)
+```
+```{r}
+# Example interaction between horsepower and weight
+lm_interact <- lm(mpg ~ horsepower * weight + year + acceleration + cylinders + displacement + origin, data = Auto)
+summary(lm_interact)
+```
+
+```{r}
+# Example: adding quadratic and log terms
+lm_poly <- lm(mpg ~ horsepower + I(horsepower^2) + log(weight) + year + origin + acceleration, data = Auto)
+summary(lm_poly)
+```
+```{r}
+# Fit the model
+model_a <- lm(Sales ~ Price + Urban + US, data = Carseats)
+
+# Summary of the model
+summary(model_a)
+```
+
+Intercept (13.04): Expected sales when Price = 0, Urban = No, and US = No.
+
+Price (-0.054): For each additional unit increase in Price, Sales decrease by 0.054 units, holding other variables constant.
+
+UrbanYes (-0.022): Stores in urban areas sell ~0.022 fewer units than non-urban stores (not statistically significant).
+
+USYes (1.20): US-based stores sell about 1.20 more units on average than non-US stores, holding other variables constant.
+
+```{r}
+model_e <- lm(Sales ~ Price + US, data = Carseats)
+summary(model_e)
+```
+
+```{r}
+confint(model_e)
+```
+
+```{r}
+par(mfrow = c(2, 2))
+plot(model_e)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

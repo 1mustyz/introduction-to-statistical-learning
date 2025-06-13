@@ -1,0 +1,122 @@
+---
+title: "ISLR chapter 2"
+author: "Mustapha Yusuf"
+date: "2025-05-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+college <- read.csv("College.csv", na.strings = "?")
+rownames(college) <- college[, 1]
+college <- college[, -1]
+na.omit(college)
+View(college)
+
+```
+
+
+```{r}
+summary(college)
+attach(college)
+Private <- as.factor(Private)
+head(college)
+plot(Outstate, Private)
+```
+
+```{r}
+library(dplyr)
+college_numeric <- college %>% 
+  select(where(is.numeric))
+
+# college_numeric
+pairs(college_numeric[1:10])
+```
+
+```{r}
+Elite <- rep("No", nrow(college))
+Elite[college$Top10perc > 50] <- "Yes"
+Elite <- as.factor(Elite)
+college <- data.frame(college , Elite)
+View(college)
+```
+
+```{r}
+# table(college$Elite)
+summary(college$Elite)
+```
+
+```{r}
+plot(Outstate, Elite)
+```
+```{r}
+par(mfrow = c(2, 2))
+hist(Outstate, 
+     main = "Outstate",
+     xlab = "Outstate Tuition ($)",
+     col = "lightblue")
+
+hist(Apps, 
+     main = "Apps",
+     xlab = "Apps",
+     col = "lightgreen")
+
+hist(Top10perc, 
+     main = "Top10perc",
+     xlab = "Top10perc",
+     col = "lightgreen")
+
+hist(Top25perc, 
+     main = "Top25perc",
+     xlab = "Top25perc",
+     col = "lightblue")
+```
+
+```{r}
+Auto <- read.table("Auto.data", header = T, na.strings = "?",
+stringsAsFactors = T)
+head(Auto)
+table(Auto$cylinders)
+
+```
+
+```{r}
+# head(Auto)
+
+numeric_cols <- Auto %>% select(where(is.numeric))
+ranges <- sapply(numeric_cols, range)
+ranges
+```
+
+```{r}
+means <- sapply(numeric_cols, mean)
+means
+```
+```{r}
+sds <- sapply(numeric_cols, sd)
+sds
+```
+
+```{r}
+pairs(numeric_cols)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
